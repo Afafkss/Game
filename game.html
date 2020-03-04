@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Game</title>
+</head>
+<body>
+<canvas id = "canvas" width = "320" height = "480"></canvas>
+<script type="text/javascript">
+document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+var x = 160; // Х координата игрока
+var y = 240; // Y координата игрока 
+var left = 0; // Переменная для отслеживания нажатия влево
+var right = 0; //Переменная для отслеживания нажатя вправо
+
+var rays = []; //Массив лучей
+var blocks = []; // Обекты
+
+for(i = 0;i < 100;i++){ //Создане лучей 
+  rays.push({lx:0,ly:0,angle:i});
+}
+
+blocks.push({x:x+64,y:y}); //Добавление блока
+
+document.addEventListener("keydown",function(e){ //Отслеживание нажатия
+  if(e.keyCode == 65){
+    left = 1;
+  }
+
+  if(e.keyCode == 68){
+    right = 1;
+  }
+});
+
+document.addEventListener("keyup",function(e){ //Отслеживание отжатия
+  if(e.keyCode == 65){
+    left = 0;
+  }
+
+  if(e.keyCode == 68){
+    right = 0;
+  }
+});
+
+function game(){ //Цикл игры
+  ctx.clearRect(0,0,320,480);
+
+  ctx.fillStyle = "black";
+
+  ctx.fillRect(x,y,32,32);
+
+  for(i in blocks){ // Рисование блока
+    ctx.fillStyle = "purple";
+    ctx.fillRect(blocks[i].x,blocks[i].y,32,32);
+  }
+
+  for(i in rays){ //Просчет,рисование,обработка столкновения лучей.
+    rays[i].lx = Math.cos((rays[i].angle/180) * Math.PI)*100 + x + 16;
+    rays[i].ly = Math.sin((rays[i].angle/180) * Math.PI)*100 + y + 16;
+    
+    for(j in blocks){
+      if(rays[i].lx + 100 >= blocks[j].x && rays[i].lx <= blocks[j].x+32){ //Как?
+        if(rays[i].ly + 1 >= blocks[j].y && rays[i].ly <= blocks[j].y+32){
+          rays[i].lx = rays[i].lx - blocks[j].x + 32;
+          rays[i].ly = rays[i].ly - blocks[j].y + 32;
+        }
+      }
+    }
+    
+    ctx.beginPath(); //Рисование
+    ctx.moveTo(x + 16,y + 16);
+    ctx.lineTo(rays[i].lx,rays[i].ly);
+    ctx.stroke();
+    ctx.closePath();
+
+    if(left == 1){ //Поворот лучей влево
+      rays[i].angle-=2;
+    }
+
+    if(right == 1){ //Поворот лучей вправо
+      rays[i].angle+=2;
+    }
+  }
+
+  ctx.beginPath(); //Рисование круга просто он есть
+  ctx.fillStyle = "red";
+  ctx.arc(x+16,y+16,100,0,2*Math.PI);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+setInterval(game,20);
+</script>
+</body>
+</html>
